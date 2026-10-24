@@ -51,10 +51,26 @@ def _eyes(state: str, ink: str) -> str:
             f'<circle cx="{75.6 + dx}" cy="55.4" r="1" fill="#fff" opacity=".7"/>')
 
 
-def mascot_svg(state: str = "warm", size: int = 120, tail: bool = False) -> str:
+# Thinking loop: a soft bob, eyes glancing side to side, an occasional blink. CSS inside the SVG
+# still runs when it is shown as an <img>; reduced-motion users get the still pose.
+_ANIMATION = """<style>
+.bob { animation: bob 1.8s ease-in-out infinite; transform-origin: 60px 110px; }
+.look { animation: look 3.6s ease-in-out infinite; }
+.blink { animation: blink 3.6s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(2deg); } }
+@keyframes look { 0%, 20% { transform: translateX(0); } 35%, 55% { transform: translateX(-3px); }
+  70%, 90% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+@keyframes blink { 0%, 60%, 66%, 100% { transform: scaleY(1); } 63% { transform: scaleY(.1); } }
+@media (prefers-reduced-motion: reduce) { .bob, .look, .blink { animation: none; } }
+</style>"""
+
+
+def mascot_svg(state: str = "warm", size: int = 120, tail: bool = False, animated: bool = False) -> str:
     """Rafiq mascot: rounded sage shell, cream face inset, small dark eyes.
 
     `tail=True` adds the speech-bubble tail used for the compact icon (section 5).
+    `animated=True` adds the thinking loop, used while a reply is on its way.
     """
     c = COLORS
     ink = c["text"]
@@ -65,8 +81,8 @@ def mascot_svg(state: str = "warm", size: int = 120, tail: bool = False) -> str:
     tail_path = (f'<path d="M92 92 L108 110 L84 100 Z" fill="{c["mascot_shell"]}" '
                  f'stroke="#BFD0C2" stroke-width="1.5" stroke-linejoin="round"/>') if tail else ""
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="{size}" height="{size}" \
-role="img" aria-label="Rafiq">
-<g transform="rotate({_TILT.get(state, 0)} 60 64)">
+role="img" aria-label="Rafiq">{_ANIMATION if animated else ""}
+<g class="bob"><g transform="rotate({_TILT.get(state, 0)} 60 64)">
 {tail_path}
 <path d="M60 6 C90 6 106 28 108 58 C111 88 110 113 60 114 C10 113 9 88 12 58 C14 28 30 6 60 6 Z"
  fill="{c["mascot_shell"]}" stroke="#BFD0C2" stroke-width="1.5"/>
@@ -76,12 +92,12 @@ role="img" aria-label="Rafiq">
 <g transform="translate(0 -5)">
 <path d="{_BROWS.get(state, _BROWS["warm"])}" stroke="{ink}" stroke-width="1.8" fill="none"
  stroke-linecap="round"/>
-{_eyes(state, ink)}
+<g class="look"><g class="blink">{_eyes(state, ink)}</g></g>
 <ellipse cx="38" cy="67" rx="5" ry="3" fill="{c["warm_accent"]}" opacity=".55"/>
 <ellipse cx="82" cy="67" rx="5" ry="3" fill="{c["warm_accent"]}" opacity=".55"/>
 <ellipse cx="60" cy="64" rx="2.2" ry="1.5" fill="#E2C7A8"/>
 <path d="{mouth}" stroke="{ink}" stroke-width="2" fill="none" stroke-linecap="round"/>
-</g></g></svg>"""
+</g></g></g></svg>"""
 
 
 def user_avatar_svg(size: int = 40) -> str:
@@ -100,9 +116,10 @@ def asset_img(name: str, width: int, alt: str = "Rafiq", cls: str = "") -> str:
     return f'<img class="rafiq-mascot {cls}" src="data:image/png;base64,{data}" width="{width}" alt="{alt}">'
 
 
-def mascot_img(state: str = "warm", size: int = 120, tail: bool = False, cls: str = "") -> str:
+def mascot_img(state: str = "warm", size: int = 120, tail: bool = False, cls: str = "",
+               animated: bool = False) -> str:
     """Mascot as an <img> data URI; Streamlit's HTML sanitizer strips inline <svg>."""
-    data = base64.b64encode(mascot_svg(state, size, tail).encode()).decode()
+    data = base64.b64encode(mascot_svg(state, size, tail, animated).encode()).decode()
     return (f'<img class="rafiq-mascot {cls}" src="data:image/svg+xml;base64,{data}" '
             f'width="{size}" height="{size}" alt="Rafiq">')
 
@@ -128,6 +145,9 @@ html, body, .stApp, .stMarkdown, input, textarea, button {{
 .stApp {{ background: var(--r-bg); color: var(--r-text); }}
 [data-testid="stSidebar"] {{ background: var(--r-surface); border-inline-end: 1px solid var(--r-divider); }}
 #MainMenu, [data-testid="stDecoration"], footer {{ display: none !important; }}
+/* Streamlit's own toolbar (Share, star, edit, GitHub, deploy): keep only the sidebar toggle */
+[data-testid="stToolbarActions"], [data-testid="stAppDeployButton"],
+[data-testid="stMainMenu"] {{ display: none !important; }}
 /* Streamlit's top bar overlays the page; keep it short and pad the content below it */
 [data-testid="stHeader"] {{ background: var(--r-bg); height: 48px; min-height: 48px; }}
 
@@ -209,6 +229,21 @@ input, textarea {{ font-size: 16px !important; }}
   border-top: 1px solid var(--r-divider); margin-top: 10px; padding-top: 8px; font-size: 13px;
   color: var(--r-text-2); }}
 .rafiq-verse .ref a {{ color: var(--r-primary); min-height: 24px; }}
+
+/* Typing indicator while a reply is on its way */
+.rafiq-typing {{ display: inline-flex; align-items: center; gap: 10px; min-height: 40px;
+  color: var(--r-text-2); font-size: 14px; }}
+.rafiq-typing .rafiq-mascot {{ width: 56px; height: 56px; }}
+/* While thinking, the larger animated Rafiq stands in for the small avatar */
+[data-testid="stChatMessage"]:has(.rafiq-typing) > :first-child {{ display: none; }}
+.rafiq-typing .dots {{ display: inline-flex; gap: 4px; padding: 10px 12px; border-radius: 16px;
+  background: var(--r-surface); border: 1px solid var(--r-divider); }}
+.rafiq-typing .dots i {{ width: 7px; height: 7px; border-radius: 50%; background: var(--r-primary);
+  opacity: .35; animation: rafiq-dot 1.2s ease-in-out infinite; }}
+.rafiq-typing .dots i:nth-child(2) {{ animation-delay: .15s; }}
+.rafiq-typing .dots i:nth-child(3) {{ animation-delay: .3s; }}
+@keyframes rafiq-dot {{ 0%, 60%, 100% {{ transform: translateY(0); opacity: .35; }}
+  30% {{ transform: translateY(-4px); opacity: 1; }} }}
 
 /* Mode chip shown on special turns (text, not colour alone) */
 .rafiq-chip {{ display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 10px;

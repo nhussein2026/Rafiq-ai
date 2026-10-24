@@ -10,6 +10,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Live preview on Streamlit Community Cloud: https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/
 
 ### Changed
+- Replies stream in as they are written. The model now writes the reply first and its metadata after a `<<<META>>>` line; the output safety gate checks streamed text (with an 80-character look-ahead) before it is shown and withdraws it if it trips.
+- Faster replies: the Gemini client is reused across messages and output is capped at 1024 tokens.
+- Thinking state: an animated Rafiq (bob, glance, blink) with typing dots; still for reduced-motion users.
+- Streamlit's toolbar icons (Share, star, edit, GitHub) are hidden.
 - Opens straight into the chat: the 18+ / consent screen is gone; the AI and Gemini API notice now sits on the empty-chat welcome.
 - Large-screen layout: sidebar opens by default on desktop, header no longer hidden under the top bar, chat input aligned with the content column, starter prompts on the empty chat.
 - Gemini 5xx/429 errors are retried with backoff and shown as plain-language messages.

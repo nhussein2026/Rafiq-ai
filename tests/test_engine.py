@@ -19,6 +19,13 @@ class FakeEngine(RafiqEngine):
         self.calls += 1
         return self.outputs.pop(0)
 
+    def _stream_model(self, system_prompt, history):
+        """Stream the next canned output in the model's wire format, a few characters at a time."""
+        self.calls += 1
+        text = engine._format_output(self.outputs.pop(0))
+        for i in range(0, len(text), 7):
+            yield text[i:i + 7]
+
 
 def ask(eng, text, settings=ALL_ON):
     return eng.respond([{"role": "user", "content": text}], settings, [])
@@ -85,3 +92,37 @@ def test_mascot_svg_renders_every_state(state):
 
     svg = mascot_svg(state, tail=True)
     assert svg.startswith("<svg") and COLORS["mascot_shell"] in svg and COLORS["mascot_face"] in svg
+
+
+def stream(eng, text, settings=ALL_ON):
+    s = eng.stream([{"role": "user", "content": text}], settings, [])
+    return s, list(s)
+
+
+def test_parse_output_splits_reply_and_meta():
+    data = engine.parse_output(f'Hello there.\n{engine.META_MARK}\n{{"source_ids": ["q-94-5"]}}')
+    assert data == {"reply": "Hello there.", "source_ids": ["q-94-5"]}
+    assert engine.parse_output("just text") == {"reply": "just text"}
+
+
+def test_stream_yields_reply_incrementally_and_validates_meta():
+    text = "Exams are a lot. One small step tonight could be a short review and an early night."
+    s, chunks = stream(FakeEngine([reply(text, ["q-94-5", "q-999-1"])]), "I'm stressed")
+    assert len(chunks) > 1 and "".join(chunks) == text and engine.META_MARK not in "".join(chunks)
+    assert [x["id"] for x in s.turn.sources] == ["q-94-5"] and s.turn.rejected_source_ids == ["q-999-1"]
+
+
+def test_stream_never_shows_text_the_gate_blocks():
+    bad = reply("I hear you. " * 10 + "The Prophet said patience is light. Narrated by Muslim.")
+    eng = FakeEngine([bad, bad])  # streamed attempt, then the corrective retry
+    s, chunks = stream(eng, "Tell me a hadith")
+    shown = "".join(c for c in chunks if c is not engine.RESET)
+    assert "Narrated by" not in shown and "said patience" not in shown
+    assert engine.RESET in chunks and s.turn.mode == "corrected"
+    assert chunks[-1] == engine.FALLBACK_REPLY["en"]
+
+
+def test_stream_crisis_skips_model():
+    eng = FakeEngine([])
+    s, chunks = stream(eng, "I want to kill myself")
+    assert eng.calls == 0 and s.turn.mode == "crisis" and chunks == [s.turn.reply]

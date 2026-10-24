@@ -6,8 +6,9 @@ from datetime import datetime, timedelta
 import streamlit as st
 
 from rafiq import RafiqEngine, __version__
-from rafiq.brand import asset_img, css, mascot_svg, user_avatar_svg
+from rafiq.brand import asset_img, css, mascot_img, mascot_svg, user_avatar_svg
 from rafiq.config import ASSETS_DIR, DEFAULT_MODEL
+from rafiq.engine import RESET
 
 st.set_page_config(page_title="Rafiq · رفيق", page_icon=str(ASSETS_DIR / "icon-128.png"), layout="centered",
                    initial_sidebar_state="auto")  # open on desktop, collapsed on phones
@@ -53,6 +54,11 @@ def model_error_message(e: Exception) -> str:
     if code == 404:
         return "That model name was not found. Pick one from the list in the sidebar."
     return f"Model call failed: {e}"
+
+
+def typing_indicator(label: str) -> str:
+    return (f'<div class="rafiq-typing">{mascot_img("thinking", 56, animated=True)}'
+            f'<span class="dots"><i></i><i></i><i></i></span>{label}</div>')
 
 
 def md_bold(text: str) -> str:
@@ -243,13 +249,22 @@ if prompt := st.chat_input("اكتب رسالتك · Message Rafiq") or ss.pop("
 if ss.pending:
     ss.pending = False
     history = [{"role": m["role"], "content": m["content"]} for m in ss.messages]
-    with st.chat_message("assistant", avatar=mascot_svg("thinking", size=40)):
-        with st.spinner("رفيق يفكر… · Rafiq is thinking…"):
-            try:
-                turn = RafiqEngine(api_key=api_key, model=model).respond(history, settings, ss.memories)
-            except Exception as e:  # show API/parse errors instead of crashing the demo
-                ss.error = model_error_message(e)
-                st.rerun()
+    reply_stream = RafiqEngine(api_key=api_key, model=model).stream(history, settings, ss.memories)
+    with st.chat_message("assistant", avatar=mascot_svg("thinking", size=40, animated=True)):
+        box, text = st.empty(), ""
+        box.markdown(typing_indicator("رفيق يفكر · Rafiq is thinking"), unsafe_allow_html=True)
+        try:
+            for chunk in reply_stream:
+                if chunk is RESET:  # the safety gate withdrew what was shown; a rewrite follows
+                    text = ""
+                    box.markdown(typing_indicator("Checking that reply"), unsafe_allow_html=True)
+                    continue
+                text += chunk
+                box.markdown(text + " ▍")
+        except Exception as e:  # show API/parse errors instead of crashing the demo
+            ss.error = model_error_message(e)
+            st.rerun()
+    turn = reply_stream.turn
 
     t = turn.__dict__
     ss.messages.append({"role": "assistant", "content": turn.reply, "turn": t})
