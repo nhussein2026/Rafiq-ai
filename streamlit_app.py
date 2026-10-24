@@ -53,7 +53,7 @@ if not ss.consented:
     st.markdown(
         f"""<div class="rafiq-hero">{asset_img("mascot.png", 190)}
         <div class="rafiq-wordmark">رفيق <small>Rafiq · your AI companion</small></div>
-        <p>حضور دافئ، وتذكير واضح.</p></div>""",
+        <p>رفيق عن رفيق بيفرق</p></div>""",
         unsafe_allow_html=True,
     )
     st.markdown(f'<div class="rafiq-panel">{md_bold(ABOUT)}</div>', unsafe_allow_html=True)
