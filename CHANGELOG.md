@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Project status
+- Documented that this repo is one of three experiments from Hacktoberfest Hack Day Istanbul × Hadith Tech (24 Oct 2026). It was not the submitted version; see the README and `docs/retrospective.md`.
+
 ### Added
 - API key from Streamlit secrets (`GEMINI_API_KEY`).
 - Live preview on Streamlit Community Cloud: https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/

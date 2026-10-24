@@ -4,6 +4,41 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/)
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange)](https://hacktoberfest.com)
+[![Status: archived experiment](https://img.shields.io/badge/status-hackathon%20experiment-lightgrey)](#-read-this-first-project-status)
+
+## 📌 Read this first: project status
+
+This repo is **one of three experiments** our team built in a single day at
+[**Hacktoberfest Hack Day Istanbul × Hadith Tech**](https://www.mlh.com/events/hacktoberfest-hack-day-istanbul-x-hadith-tech)
+(24 October 2026, Zeytinburnu, Istanbul; organised by Hadith Tech, listed by MLH, part of Hacktoberfest 2026).
+
+**The idea:** a friend-like AI chat that talks in a warm, human way, in Arabic and English, and, only when
+the user wants it, shares Islamic guidance from verified sources instead of making things up.
+
+We tried three approaches. **This one is not the version we submitted.** Another attempt gave clearly better
+results, and that is the one we entered:
+
+> 👉 **Submitted version (live):** [rfyq-wjht-mvp.replit.app](https://rfyq-wjht-mvp.replit.app)
+
+We keep this repo public and open source because the work in it is still useful: the behaviour "skills",
+the safety and source-validation pipeline, the brand identity, and the lessons below.
+
+**Does it work?** Yes. It runs, streams replies, and its tests pass. **Is it good?** Not yet. The quality of
+the conversation is below what we wanted:
+
+- **Replies feel robotic.** They are short and formulaic, not the human friend we were aiming for.
+- **Slow, with API errors.** Gemma 4 on the Gemini API is slow for a chat, and it often returns `500 INTERNAL`.
+- **Weak Arabic.** Arabic replies, and dialects especially, were noticeably worse than English.
+- **Limited UI/UX.** Streamlit is fine for a demo, but it can't give the polished mobile chat experience this
+  idea needs.
+- **The approach is too thin.** This version is mostly *a system prompt plus an API call*. A companion like
+  this needs a real backend: conversation state, retrieval, memory, evaluation and tighter control over the
+  model. Prompting alone wasn't enough.
+
+The full write-up is in [docs/retrospective.md](docs/retrospective.md). If you are here to build something
+similar, start there.
+
+---
 
 **Rafiq** (Arabic for *companion*) is an open-source AI wellbeing companion for Arabic and English speakers. It listens, supports reflection and small habits, and — only when the user opts in — shares **verified** Sunni Islamic guidance from reviewed sources.
 
@@ -11,7 +46,7 @@ Rafiq is an AI. It is **not** a human, scholar, mufti, therapist or doctor.
 
 **🔗 Live preview:** [rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app](https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/)
 
-> ⚠️ **Status: demo / MVP.** The safety gate is keyword-based, not a validated crisis classifier. Do not use with vulnerable users.
+> ⚠️ **Hackathon experiment, not a product.** The safety gate is keyword-based, not a validated crisis classifier. Do not use with vulnerable users.
 
 <p align="center"><img src="assets/mascot.png" width="160" alt="Rafiq mascot"></p>
 
@@ -66,13 +101,20 @@ Rafiq-ai/
 └── .github/                # CI, issue & PR templates
 ```
 
-See [docs/architecture.md](docs/architecture.md) for how a message flows through the system, and [docs/demo-script.md](docs/demo-script.md) for a live demo walkthrough.
+See [docs/architecture.md](docs/architecture.md) for how a message flows through the system, [docs/demo-script.md](docs/demo-script.md) for a live demo walkthrough, and [docs/retrospective.md](docs/retrospective.md) for what worked and what didn't.
 
 ## 🎃 Hacktoberfest 2026
 
-We welcome contributions! Look for issues labelled `hacktoberfest` and `good first issue`. Read [CONTRIBUTING.md](CONTRIBUTING.md) first — especially the rules on religious content, which **must not** be AI-generated.
+This repo is kept as a reference and is **not under active development**. Issues and PRs are still welcome,
+but replies may be slow. Read [CONTRIBUTING.md](CONTRIBUTING.md) first, especially the rules on religious
+content, which **must not** be AI-generated.
 
-Good areas to contribute: tests for `tests/scenarios/TEST_CASES.md`, Arabic dialect coverage in the safety gate, UI/RTL polish, docs and translations.
+Useful areas if you want to contribute: tests for `tests/scenarios/TEST_CASES.md`, Arabic dialect coverage in
+the safety gate, and the backend ideas in [docs/retrospective.md](docs/retrospective.md#what-we-would-do-next).
+
+## Credits
+
+Built by a team at Hacktoberfest Hack Day Istanbul × Hadith Tech, October 2026.
 
 ## Sources & rights
 

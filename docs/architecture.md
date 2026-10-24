@@ -10,8 +10,8 @@ safety.input_gate ──crisis──► fixed human-help reply (no LLM, no verse
 build_system_prompt  ← skills/*.md + runtime context (toggles, approved catalog, memories)
    │
    ▼
-LLM (Gemini / Gemma) → JSON proposal (config/response.schema.json)
-   │
+LLM (Gemma 4 via Gemini API), streamed:  reply text  <<<META>>>  JSON metadata (config/response.schema.json)
+   │            └─ output_gate checks streamed text (80-char look-ahead) before it is shown
    ▼
 _validate: source_ids ∈ approved catalog? memory/follow-up allowed by toggles?
    │
@@ -32,8 +32,8 @@ UI renders reply + exact Arabic from data/ + pending memory / simulated check-in
 | 04 hadith | Disabled (`config/policy.yaml`) |
 | 07 memory | Model proposes; user approves in the sidebar; session-only |
 | 08 follow-ups | Only when toggled on; simulated, nothing is sent |
-| 09 privacy | Consent screen + `/about /mydata /pause /resume /forget` |
+| 09 privacy | AI / third-party API notice on the welcome view + `/about /mydata /pause /resume /forget` (no age check in the demo) |
 
 ## Model notes
 
-Gemini models get the skills as a system instruction and use JSON mode. Gemma models on the Gemini API support neither, so the skills are sent as the first user turn and JSON is parsed from text.
+The model writes the reply first and the metadata after a `<<<META>>>` line, so the reply can stream. Gemma on the Gemini API has no system instructions, so the skills go in as the first user turn, followed by a primed model turn that shows the format. Other Gemini models get the skills as a system instruction. `parse_output` also accepts a whole-JSON answer as a fallback.
