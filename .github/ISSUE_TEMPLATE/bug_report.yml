@@ -19,7 +19,7 @@ body:
     id: model
     attributes:
       label: Model and version
-      placeholder: "gemini-2.5-flash, Rafiq v0.1.0"
+      placeholder: "gemma-4-31b-it, Rafiq v0.1.0"
   - type: markdown
     attributes:
       value: "⚠️ Safety-gate bypasses must be reported privately — see SECURITY.md."

@@ -22,8 +22,7 @@ ss.setdefault("paused", False)
 ss.setdefault("pending", False)      # last user message is waiting for a reply
 ss.setdefault("error", None)         # last model failure, shown with a Retry button
 
-MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro",
-          "gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemma-3-27b-it"]
+MODELS = ["gemma-4-31b-it", "gemma-4-26b-a4b-it"]
 
 ABOUT = (
     "**Rafiq** is an AI companion — not a human, scholar, mufti, therapist or doctor. "
@@ -45,14 +44,14 @@ def model_error_message(e: Exception) -> str:
     code = getattr(e, "code", None)
     if code in (500, 502, 503, 504):
         return ("Gemini is having a temporary problem on Google's side. Wait a moment and send "
-                "your message again, or try another model in the sidebar (e.g. gemini-2.5-flash-lite).")
+                "your message again, or switch model in the sidebar.")
     if code == 429:
         return "The Gemini API key has hit its rate or free-tier limit. Wait a minute and try again."
     if code in (400, 401, 403) and "key" in str(e).lower():
         return ("The Gemini API key was rejected. Create a new one at https://aistudio.google.com/apikey "
                 "and paste it in the sidebar.")
     if code == 404:
-        return "That model name was not found. Try gemini-2.5-flash."
+        return "That model name was not found. Pick one from the list in the sidebar."
     return f"Model call failed: {e}"
 
 
@@ -107,8 +106,7 @@ with st.sidebar:
         model = st.selectbox(
             "Model", MODELS, index=MODELS.index(DEFAULT_MODEL) if DEFAULT_MODEL in MODELS else 0,
             accept_new_options=True,
-            help="Gemini models are the most reliable. Gemma has no system prompt or JSON mode "
-                 "on this API, so it fails more often.",
+            help="Gemma 4 via the Gemini API. If one is busy, try the other.",
         )
         show_debug = st.toggle("Show backend pipeline", value=True)
 

@@ -46,7 +46,7 @@ Run tests: `pytest` · Lint: `ruff check .`
 3. **Streamlit Community Cloud:** app **⋮ → Settings → Secrets**, add `GEMINI_API_KEY = "..."` and save. The key stays on the server and is never shown in the UI.
 4. Visitors can also paste their own key in the sidebar; it is used only for their session.
 
-A `500 INTERNAL` or `503` error comes from Google's side, not your key: the app retries automatically, and if it persists wait a minute or pick another model such as `gemini-2.5-flash-lite`.
+A `500 INTERNAL` or `503` error comes from Google's side, not your key: the app retries automatically, and if it persists wait a minute or switch between `gemma-4-31b-it` and `gemma-4-26b-a4b-it` in the sidebar.
 
 ## Project structure
 

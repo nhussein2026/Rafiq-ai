@@ -14,7 +14,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Large-screen layout: sidebar opens by default on desktop, header no longer hidden under the top bar, chat input aligned with the content column, starter prompts on the empty chat.
 - Gemini 5xx/429 errors are retried with backoff and shown as plain-language messages.
 - A failed reply keeps the user's message on screen with a **Try again** button; Rafiq "thinks" inside its own chat bubble.
-- Sidebar: model is a picker (Gemini models first), key and model grouped under **Model & API key**, tighter spacing on desktop.
+- Sidebar: model is a picker limited to `gemma-4-31b-it` (default) and `gemma-4-26b-a4b-it`, key and model grouped under **Model & API key**, tighter spacing on desktop.
 - New tagline on the welcome screen: «رفيق عن رفيق بيفرق».
 
 ### Security
