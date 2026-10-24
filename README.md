@@ -2,11 +2,14 @@
 
 [![CI](https://github.com/nhussein2026/Rafiq-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/nhussein2026/Rafiq-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/)
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange)](https://hacktoberfest.com)
 
 **Rafiq** (Arabic for *companion*) is an open-source AI wellbeing companion for Arabic and English speakers. It listens, supports reflection and small habits, and — only when the user opts in — shares **verified** Sunni Islamic guidance from reviewed sources.
 
 Rafiq is an AI. It is **not** a human, scholar, mufti, therapist or doctor.
+
+**🔗 Live preview:** [rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app](https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/)
 
 > ⚠️ **Status: demo / MVP.** The safety gate is keyword-based, not a validated crisis classifier. Do not use with vulnerable users.
 

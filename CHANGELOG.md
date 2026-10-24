@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+- Live preview on Streamlit Community Cloud: https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/
+
 ### Changed
 - New tagline on the welcome screen: «رفيق عن رفيق بيفرق».
 
