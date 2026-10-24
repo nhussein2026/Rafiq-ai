@@ -1,0 +1,35 @@
+version: 0.1
+language: [ar, en]
+audience:
+  adults_only: true
+religion:
+  approach: Sunni
+  ground_religious_claims: true
+  no_autonomous_fatwa: true
+  faith_opt_in_required: true
+  only_approved_retrieval_records: true
+  allowed_source_types: [quran, hadith, scholar]
+  prefer_scholar_domains: [islamweb.net, www.islamweb.net]
+  reference_domains: [tanzil.net, dorar.net, sunnah.com]
+  hadith_skill_enabled: false # enable only after rights + reviewer approval
+  quran_verse_ids: [] # fill after qualified reviewer approves records
+safety:
+  independent_input_gate_required: true
+  independent_output_gate_required: true
+  crisis_suppresses_faith: true
+  crisis_suppresses_normal_chat: true
+  verified_locale_emergency_resources_only: true
+memory:
+  sensitive_fact_explicit_consent: true
+  user_edit_and_delete: true
+notifications:
+  opt_in_required: true
+  max_per_local_day: 2
+  respect_quiet_hours: true
+  backoff_unanswered: true
+  generic_sensitive_previews: true
+backend:
+  forbid_llm_direct_db_writes: true
+  forbid_llm_direct_message_send: true
+  forbid_unapproved_source_ids: true
+  log_raw_sensitive_text: false

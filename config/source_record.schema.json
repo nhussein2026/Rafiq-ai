@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Approved Islamic evidence record",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "source_name",
+    "source_url",
+    "review_status",
+    "reviewer",
+    "verified_at",
+    "rights_status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "quran",
+        "hadith",
+        "scholar"
+      ]
+    },
+    "source_name": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "quran_verse_id": {
+      "type": "string",
+      "pattern": "^[0-9]{1,3}:[0-9]{1,3}$"
+    },
+    "hadith_collection": {
+      "type": "string"
+    },
+    "hadith_locator": {
+      "type": "string"
+    },
+    "hadith_grade": {
+      "enum": [
+        "sahih",
+        "hasan",
+        "daif",
+        "fabricated",
+        "disputed",
+        "not_applicable"
+      ]
+    },
+    "hadith_grader": {
+      "type": "string"
+    },
+    "arabic_exact_text": {
+      "type": "string"
+    },
+    "reviewed_context_summary": {
+      "type": "string"
+    },
+    "review_status": {
+      "enum": [
+        "approved",
+        "pending",
+        "rejected"
+      ]
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "rights_status": {
+      "enum": [
+        "licensed",
+        "link_only",
+        "pending"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

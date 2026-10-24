@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rafiq response proposal",
+  "type": "object",
+  "required": [
+    "reply",
+    "source_ids",
+    "memory_proposals",
+    "followup_proposal"
+  ],
+  "properties": {
+    "reply": {
+      "type": "string"
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "memory_proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "summary"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "goal",
+              "event",
+              "preference",
+              "context"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "followup_proposal": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string"
+        },
+        "suggested_delay_days": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "topic",
+        "suggested_delay_days"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

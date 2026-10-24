@@ -1,0 +1,2 @@
+# Used by Streamlit Community Cloud; installs the rafiq package from pyproject.toml
+-e .

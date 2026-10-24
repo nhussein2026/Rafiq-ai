@@ -1,0 +1,41 @@
+[
+  {
+    "id": "q-94-5",
+    "kind": "quran",
+    "source_name": "Tanzil Quran Text (Simple)",
+    "source_url": "https://tanzil.net/#94:5",
+    "quran_verse_id": "94:5",
+    "arabic_exact_text": "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    "reviewed_context_summary": "Comfort and hope during hardship; ease accompanies difficulty. Suitable for stress, sadness, feeling overwhelmed. Not for crisis mode.",
+    "review_status": "approved",
+    "reviewer": "DEMO_PLACEHOLDER - verify against tanzil.net and replace with qualified reviewer",
+    "verified_at": "2026-10-24",
+    "rights_status": "licensed"
+  },
+  {
+    "id": "q-94-6",
+    "kind": "quran",
+    "source_name": "Tanzil Quran Text (Simple)",
+    "source_url": "https://tanzil.net/#94:6",
+    "quran_verse_id": "94:6",
+    "arabic_exact_text": "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    "reviewed_context_summary": "Continuation of 94:5; repetition emphasising that ease accompanies hardship. Use together with q-94-5.",
+    "review_status": "approved",
+    "reviewer": "DEMO_PLACEHOLDER - verify against tanzil.net and replace with qualified reviewer",
+    "verified_at": "2026-10-24",
+    "rights_status": "licensed"
+  },
+  {
+    "id": "q-13-28",
+    "kind": "quran",
+    "source_name": "Tanzil Quran Text (Simple)",
+    "source_url": "https://tanzil.net/#13:28",
+    "quran_verse_id": "13:28",
+    "arabic_exact_text": "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+    "reviewed_context_summary": "Remembrance of Allah brings tranquility to hearts. Suitable for anxiety/restlessness when user enabled faith guidance. Never as a substitute for medical or crisis care.",
+    "review_status": "approved",
+    "reviewer": "DEMO_PLACEHOLDER - verify against tanzil.net and replace with qualified reviewer",
+    "verified_at": "2026-10-24",
+    "rights_status": "licensed"
+  }
+]

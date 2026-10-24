@@ -1,0 +1,25 @@
+name: Bug report
+description: Something is not working as expected
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the message you sent (redact anything personal) and Rafiq's reply.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model and version
+      placeholder: "gemini-2.5-flash, Rafiq v0.1.0"
+  - type: markdown
+    attributes:
+      value: "⚠️ Safety-gate bypasses must be reported privately — see SECURITY.md."
