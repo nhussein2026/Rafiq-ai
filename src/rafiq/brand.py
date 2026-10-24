@@ -247,6 +247,12 @@ input, textarea {{ font-size: 16px !important; }}
   .rafiq-empty .greet {{ font-size: 24px; }}
 }}
 
+/* ---------- Large screens: pointer users, denser sidebar ---------- */
+@media (min-width: 1024px) {{
+  [data-testid="stSidebar"] .stCheckbox label,
+  [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {{ min-height: 32px; }}
+}}
+
 @media (prefers-reduced-motion: reduce) {{
   *, *::before, *::after {{ animation: none !important; transition: none !important; }}
 }}

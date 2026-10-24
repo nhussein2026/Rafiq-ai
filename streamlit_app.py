@@ -19,6 +19,10 @@ ss.setdefault("memories", [])        # approved facts (session-only)
 ss.setdefault("pending_memory", [])  # model proposals awaiting user approval
 ss.setdefault("followups", [])       # simulated scheduled check-ins
 ss.setdefault("paused", False)
+ss.setdefault("pending", False)      # last user message is waiting for a reply
+ss.setdefault("error", None)         # last model failure, shown with a Retry button
+
+MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemma-3-27b-it"]
 
 ABOUT = (
     "**Rafiq** is an AI companion — not a human, scholar, mufti, therapist or doctor. "
@@ -85,21 +89,27 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.subheader("Settings")
-    # Never prefill the deployer's key: a password field can be revealed by any visitor.
-    has_server_key = bool(server_api_key())
-    api_key = st.text_input(
-        "Gemini API key", type="password",
-        placeholder="Using the app's key (optional)" if has_server_key else "Paste your key",
-        help="Free key: https://aistudio.google.com/apikey · used only for this session",
-    ) or server_api_key()
-    model = st.text_input("Model", value=DEFAULT_MODEL,
-                          help="e.g. gemini-2.5-flash, gemma-3-27b-it")
     settings = {
         "faith": st.toggle("Faith guidance (Quran from approved catalog)", value=True),
         "memory": st.toggle("Personal memory", value=False),
         "followups": st.toggle("Proactive check-ins", value=False),
     }
-    show_debug = st.toggle("Show backend pipeline", value=True)
+
+    # Never prefill the deployer's key: a password field can be revealed by any visitor.
+    has_server_key = bool(server_api_key())
+    with st.expander("Model & API key", expanded=not has_server_key):
+        api_key = st.text_input(
+            "Gemini API key", type="password",
+            placeholder="Using the app's key (optional)" if has_server_key else "Paste your key",
+            help="Free key: https://aistudio.google.com/apikey · used only for this session",
+        ) or server_api_key()
+        model = st.selectbox(
+            "Model", MODELS, index=MODELS.index(DEFAULT_MODEL) if DEFAULT_MODEL in MODELS else 0,
+            accept_new_options=True,
+            help="Gemini models are the most reliable. Gemma has no system prompt or JSON mode "
+                 "on this API, so it fails more often.",
+        )
+        show_debug = st.toggle("Show backend pipeline", value=True)
 
     st.divider()
     st.subheader("Memory")
@@ -217,25 +227,40 @@ def handle_command(cmd: str) -> bool:
     return True
 
 
+# A failed reply keeps the user's message on screen and offers a retry.
+if ss.error and ss.messages and ss.messages[-1]["role"] == "user":
+    st.error(ss.error)
+    if st.button("Try again", type="primary", key="retry"):
+        ss.error, ss.pending = None, True
+        st.rerun()
+
 if prompt := st.chat_input("اكتب رسالتك · Message Rafiq") or ss.pop("starter", None):
     if prompt.strip().lower() in {"/about", "/mydata", "/pause", "/resume", "/forget"}:
         handle_command(prompt.strip().lower())
         st.rerun()
 
     if not api_key:
-        st.error("Add a Gemini API key in the sidebar (free at https://aistudio.google.com/apikey).")
+        st.error("Add a Gemini API key under **Model & API key** in the sidebar "
+                 "(free at https://aistudio.google.com/apikey).")
         st.stop()
 
+    # Show the message first, then reply on the next run so it never disappears behind a spinner.
+    if ss.error and ss.messages and ss.messages[-1]["role"] == "user":
+        ss.messages.pop()  # replace the unanswered message instead of stacking it
     ss.messages.append({"role": "user", "content": prompt})
-    history = [{"role": m["role"], "content": m["content"]} for m in ss.messages]
+    ss.error, ss.pending = None, True
+    st.rerun()
 
-    with st.spinner("رفيق يفكر… · Rafiq is thinking…"):
-        try:
-            turn = RafiqEngine(api_key=api_key, model=model).respond(history, settings, ss.memories)
-        except Exception as e:  # show API/parse errors instead of crashing the demo
-            ss.messages.pop()
-            st.error(model_error_message(e))
-            st.stop()
+if ss.pending:
+    ss.pending = False
+    history = [{"role": m["role"], "content": m["content"]} for m in ss.messages]
+    with st.chat_message("assistant", avatar=mascot_svg("thinking", size=40)):
+        with st.spinner("رفيق يفكر… · Rafiq is thinking…"):
+            try:
+                turn = RafiqEngine(api_key=api_key, model=model).respond(history, settings, ss.memories)
+            except Exception as e:  # show API/parse errors instead of crashing the demo
+                ss.error = model_error_message(e)
+                st.rerun()
 
     t = turn.__dict__
     ss.messages.append({"role": "assistant", "content": turn.reply, "turn": t})
