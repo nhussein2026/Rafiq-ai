@@ -22,7 +22,8 @@ ss.setdefault("paused", False)
 ss.setdefault("pending", False)      # last user message is waiting for a reply
 ss.setdefault("error", None)         # last model failure, shown with a Retry button
 
-MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemma-3-27b-it"]
+MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro",
+          "gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemma-3-27b-it"]
 
 ABOUT = (
     "**Rafiq** is an AI companion — not a human, scholar, mufti, therapist or doctor. "
