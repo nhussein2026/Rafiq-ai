@@ -77,3 +77,11 @@ def test_prompt_respects_disabled_faith():
 @pytest.mark.parametrize("raw", ['{"reply": "hi"}', '```json\n{"reply": "hi"}\n```', 'Sure! {"reply": "hi"}'])
 def test_parse_json_tolerates_wrappers(raw):
     assert engine._parse_json(raw) == {"reply": "hi"}
+
+
+@pytest.mark.parametrize("state", ["warm", "thinking", "listening", "encouraging", "calm"])
+def test_mascot_svg_renders_every_state(state):
+    from rafiq.brand import COLORS, mascot_svg
+
+    svg = mascot_svg(state, tail=True)
+    assert svg.startswith("<svg") and COLORS["mascot_shell"] in svg and COLORS["mascot_face"] in svg

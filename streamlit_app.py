@@ -1,4 +1,4 @@
-"""Rafiq demo UI. Run: streamlit run app.py"""
+"""Rafiq demo UI. Run: streamlit run streamlit_app.py"""
 import json
 import os
 from datetime import datetime, timedelta
@@ -6,9 +6,12 @@ from datetime import datetime, timedelta
 import streamlit as st
 
 from rafiq import RafiqEngine, __version__
-from rafiq.config import DEFAULT_MODEL
+from rafiq.brand import asset_img, css, mascot_svg, user_avatar_svg
+from rafiq.config import ASSETS_DIR, DEFAULT_MODEL
 
-st.set_page_config(page_title="Rafiq · رفيق", page_icon="🌙", layout="wide")
+st.set_page_config(page_title="Rafiq · رفيق", page_icon=str(ASSETS_DIR / "icon-128.png"), layout="centered",
+                   initial_sidebar_state="collapsed")
+st.markdown(css(), unsafe_allow_html=True)
 
 ss = st.session_state
 ss.setdefault("consented", False)
@@ -26,10 +29,34 @@ ABOUT = (
 )
 
 
+def md_bold(text: str) -> str:
+    """Tiny **bold** -> <b> for text placed inside raw HTML blocks."""
+    parts = text.split("**")
+    return "".join(f"<b>{p}</b>" if i % 2 else p for i, p in enumerate(parts))
+
+
+def avatar_state(turn: dict | None) -> str:
+    """Pick a mascot expression (identity guide section 7) for an assistant message."""
+    if not turn:
+        return "calm" if ss.paused else "warm"
+    if turn["mode"] == "crisis":
+        return "listening"
+    if turn["mode"] == "corrected":
+        return "thinking"
+    if turn.get("memory_proposals") or turn.get("followup_proposal"):
+        return "encouraging"
+    return "warm"
+
+
 # ---------- Consent screen (skills/09_privacy.md) ----------
 if not ss.consented:
-    st.title("🌙 Rafiq · رفيق")
-    st.info(ABOUT)
+    st.markdown(
+        f"""<div class="rafiq-hero">{asset_img("mascot.png", 190)}
+        <div class="rafiq-wordmark">رفيق <small>Rafiq · your AI companion</small></div>
+        <p>حضور دافئ، وتذكير واضح.</p></div>""",
+        unsafe_allow_html=True,
+    )
+    st.markdown(f'<div class="rafiq-panel">{md_bold(ABOUT)}</div>', unsafe_allow_html=True)
     adult = st.checkbox("I am 18 or older")
     api = st.checkbox("I understand my messages are sent to Google's Gemini API")
     if st.button("Start", disabled=not (adult and api), type="primary"):
@@ -40,7 +67,12 @@ if not ss.consented:
 
 # ---------- Sidebar: settings, memory, follow-ups ----------
 with st.sidebar:
-    st.header("Settings")
+    st.markdown(
+        f'<div class="rafiq-side-brand">{asset_img("icon-128.png", 40, cls="rafiq-icon")}'
+        f'<div class="rafiq-wordmark" style="font-size:20px">رفيق</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.subheader("Settings")
     api_key = st.text_input("Gemini API key", type="password",
                             value=os.environ.get("GEMINI_API_KEY", ""))
     model = st.text_input("Model", value=DEFAULT_MODEL,
@@ -53,7 +85,7 @@ with st.sidebar:
     show_debug = st.toggle("Show backend pipeline", value=True)
 
     st.divider()
-    st.subheader("🧠 Memory")
+    st.subheader("Memory")
     for i, m in enumerate(list(ss.pending_memory)):
         st.caption(f"Proposed ({m.get('kind', 'context')}): {m['summary']}")
         c1, c2 = st.columns(2)
@@ -73,7 +105,7 @@ with st.sidebar:
     if not ss.memories and not ss.pending_memory:
         st.caption("Nothing saved.")
 
-    st.subheader("⏰ Check-ins (simulated)")
+    st.subheader("Check-ins (simulated)")
     for f in ss.followups:
         st.write(f"• {f['when']}: {f['topic']}")
     if not ss.followups:
@@ -87,20 +119,25 @@ with st.sidebar:
 
 
 # ---------- Chat ----------
-st.title("🌙 Rafiq · رفيق")
-st.caption(f"AI companion · not a scholar, mufti or therapist · v{__version__}")
+st.markdown(
+    f"""<div class="rafiq-header">{asset_img("icon-128.png", 44, cls="rafiq-icon")}
+    <div class="rafiq-wordmark">رفيق <small>AI companion · not a scholar or therapist</small></div>
+    <span class="rafiq-version">v{__version__}</span></div>""",
+    unsafe_allow_html=True,
+)
+
+
+MODE_CHIPS = {"crisis": "Safety mode · وضع الأمان", "corrected": "Checked by safety gate"}
 
 
 def render_turn_extras(turn: dict):
     for src in turn.get("sources", []):
-        with st.container(border=True):
-            st.markdown(
-                f"<div dir='rtl' style='font-size:1.5rem;text-align:center'>"
-                f"{src['arabic_exact_text']}</div>",
-                unsafe_allow_html=True,
-            )
-            st.caption(f"{src['source_name']} · {src['quran_verse_id']} · "
-                       f"[tanzil.net]({src['source_url']})")
+        st.markdown(
+            f"""<div class="rafiq-verse"><div class="ar">{src['arabic_exact_text']}</div>
+            <div class="ref"><span>{src['source_name']} · {src['quran_verse_id']}</span>
+            <a href="{src['source_url']}" target="_blank">tanzil.net</a></div></div>""",
+            unsafe_allow_html=True,
+        )
     if show_debug:
         with st.expander("Backend pipeline"):
             st.write(f"**Mode:** {turn['mode']}  ·  **Language:** {turn['lang']}")
@@ -113,10 +150,15 @@ def render_turn_extras(turn: dict):
 
 
 for msg in ss.messages:
-    with st.chat_message(msg["role"], avatar="🌙" if msg["role"] == "assistant" else None):
+    turn = msg.get("turn")
+    avatar = mascot_svg(avatar_state(turn), size=40) if msg["role"] == "assistant" else user_avatar_svg()
+    with st.chat_message(msg["role"], avatar=avatar):
+        if turn and turn["mode"] in MODE_CHIPS:
+            st.markdown(f'<span class="rafiq-chip {turn["mode"]}">{MODE_CHIPS[turn["mode"]]}</span>',
+                        unsafe_allow_html=True)
         st.markdown(msg["content"])
-        if msg.get("turn"):
-            render_turn_extras(msg["turn"])
+        if turn:
+            render_turn_extras(turn)
 
 
 def system_note(text: str):
@@ -145,7 +187,7 @@ def handle_command(cmd: str) -> bool:
     return True
 
 
-if prompt := st.chat_input("Write in Arabic or English… / اكتب بالعربية أو الإنجليزية…"):
+if prompt := st.chat_input("اكتب رسالتك · Message Rafiq"):
     if prompt.strip().lower() in {"/about", "/mydata", "/pause", "/resume", "/forget"}:
         handle_command(prompt.strip().lower())
         st.rerun()
@@ -157,7 +199,7 @@ if prompt := st.chat_input("Write in Arabic or English… / اكتب بالعر�
     ss.messages.append({"role": "user", "content": prompt})
     history = [{"role": m["role"], "content": m["content"]} for m in ss.messages]
 
-    with st.spinner("…"):
+    with st.spinner("رفيق يفكر… · Rafiq is thinking…"):
         try:
             turn = RafiqEngine(api_key=api_key, model=model).respond(history, settings, ss.memories)
         except Exception as e:  # show API/parse errors instead of crashing the demo

@@ -1,6 +1,6 @@
 # 🌙 Rafiq · رفيق
 
-[![CI](https://github.com/OWNER/Rafiq-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/Rafiq-ai/actions/workflows/ci.yml)
+[![CI](https://github.com/nhussein2026/Rafiq-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/nhussein2026/Rafiq-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange)](https://hacktoberfest.com)
 
@@ -9,6 +9,10 @@
 Rafiq is an AI. It is **not** a human, scholar, mufti, therapist or doctor.
 
 > ⚠️ **Status: demo / MVP.** The safety gate is keyword-based, not a validated crisis classifier. Do not use with vulnerable users.
+
+<p align="center"><img src="assets/mascot.png" width="160" alt="Rafiq mascot"></p>
+
+Rafiq is designed **phone-first**: it is headed for a mobile app, and this Streamlit demo is built and tested for phone screens before desktop.
 
 ## Why Rafiq is different
 
@@ -22,7 +26,7 @@ Most chatbots answer religious questions from model memory, which leads to fabri
 ## Quick start
 
 ```bash
-git clone https://github.com/OWNER/Rafiq-ai.git && cd Rafiq-ai
+git clone https://github.com/nhussein2026/Rafiq-ai.git && cd Rafiq-ai
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env    # add your key from https://aistudio.google.com/apikey
@@ -40,12 +44,13 @@ Rafiq-ai/
 ├── src/rafiq/              # Python package
 │   ├── engine.py           #   pipeline: gates → LLM → source validation
 │   ├── safety.py           #   input/output safety gates
+│   ├── brand.py            #   visual identity: colours, mascot SVG, mobile-first CSS
 │   └── config.py           #   paths and defaults
 ├── skills/                 # Behaviour rules (Markdown) loaded into the prompt
 ├── config/                 # policy.yaml + JSON schemas
 ├── data/                   # approved, reviewed source records
 ├── tests/                  # pytest suite + scenarios/TEST_CASES.md
-├── docs/                   # architecture, demo script, skills overview
+├── docs/                   # architecture, demo script, skills overview, brand/
 └── .github/                # CI, issue & PR templates
 ```
 

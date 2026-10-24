@@ -15,6 +15,10 @@ First public release (Hacktoberfest 2026).
 - Streamlit demo app with Gemini/Gemma support via the Gemini API.
 - Backend pipeline: keyword safety input gate (crisis bypasses the LLM), output gate with one corrective retry, approved source-ID validation with backend-rendered Quran text.
 - Consent screen (18+, third-party API disclosure), toggles for faith guidance, memory and check-ins, and `/about` `/mydata` `/pause` `/resume` `/forget` commands.
+- Rafiq visual identity (palette A, sage): mascot drawn as SVG with five expression states
+  (warm, thinking, listening, encouraging, calm), Noto Sans Arabic, brand tokens in `rafiq.brand`.
+- Mobile-first layout: phone is the default view, tested at 320, 390 and 1280px with no horizontal
+  scroll; 48px touch targets, safe-area padding, RTL-aware messages, reduced-motion support.
 - Three demo Quran records from Tanzil (reviewer marked `DEMO_PLACEHOLDER`).
 - pytest suite, GitHub Actions CI and tag-based release workflow.
 - Contributor docs: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, issue and PR templates.
@@ -24,5 +28,5 @@ First public release (Hacktoberfest 2026).
 - Memory and follow-ups are session-only and simulated.
 - Hadith and scholar (Islamweb) sources are disabled.
 
-[Unreleased]: https://github.com/OWNER/Rafiq-ai/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/OWNER/Rafiq-ai/releases/tag/v0.1.0
+[Unreleased]: https://github.com/nhussein2026/Rafiq-ai/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/nhussein2026/Rafiq-ai/releases/tag/v0.1.0

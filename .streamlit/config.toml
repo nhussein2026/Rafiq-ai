@@ -1,5 +1,13 @@
+# Rafiq identity, palette A (docs/brand/visual-identity-ar.md). Light mode only for now.
 [theme]
-primaryColor = "#1f7a5a"
+base = "light"
+primaryColor = "#2D6255"
+backgroundColor = "#FAF8F3"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#263B33"
 
 [browser]
 gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

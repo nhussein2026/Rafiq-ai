@@ -6,6 +6,7 @@ REPO_ROOT = Path(os.environ.get("RAFIQ_HOME", Path(__file__).resolve().parents[2
 SKILLS_DIR = REPO_ROOT / "skills"
 CONFIG_DIR = REPO_ROOT / "config"
 SOURCES_FILE = REPO_ROOT / "data" / "approved_sources.json"
+ASSETS_DIR = REPO_ROOT / "assets"
 
 DEFAULT_MODEL = os.environ.get("RAFIQ_MODEL", "gemini-2.5-flash")
 

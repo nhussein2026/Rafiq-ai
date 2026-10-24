@@ -21,4 +21,4 @@ We want participation in Rafiq to be harassment-free for everyone, regardless of
 
 ## Enforcement
 
-Report incidents privately to the maintainers at **[MAINTAINER_EMAIL]**. All reports will be reviewed and handled confidentially. Maintainers may remove contributions or ban contributors who violate this code.
+Report incidents privately to the maintainers through [GitHub private reporting](https://github.com/nhussein2026/Rafiq-ai/security/advisories/new) or by contacting the repository owner on GitHub. All reports will be reviewed and handled confidentially. Maintainers may remove contributions or ban contributors who violate this code.
