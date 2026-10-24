@@ -108,7 +108,6 @@ with st.sidebar:
             accept_new_options=True,
             help="Gemma 4 via the Gemini API. If one is busy, try the other.",
         )
-        show_debug = st.toggle("Show backend pipeline", value=True)
 
     st.divider()
     st.subheader("Memory")
@@ -164,15 +163,6 @@ def render_turn_extras(turn: dict):
             <a href="{src['source_url']}" target="_blank">tanzil.net</a></div></div>""",
             unsafe_allow_html=True,
         )
-    if show_debug:
-        with st.expander("Backend pipeline"):
-            st.write(f"**Mode:** {turn['mode']}  ·  **Language:** {turn['lang']}")
-            if turn["gate_flags"]:
-                st.write(f"**Safety gate flags:** {turn['gate_flags']}")
-            if turn["rejected_source_ids"]:
-                st.write(f"**Rejected source IDs:** {turn['rejected_source_ids']}")
-            if turn.get("raw"):
-                st.code(json.dumps(turn["raw"], ensure_ascii=False, indent=2), language="json")
 
 
 if not ss.messages:
