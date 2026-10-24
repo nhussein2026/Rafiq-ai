@@ -6,10 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ## [Unreleased]
 
 ### Added
+- API key from Streamlit secrets (`GEMINI_API_KEY`).
 - Live preview on Streamlit Community Cloud: https://rafiq-ai-elpr2wxpebscy9wrsbywom.streamlit.app/
 
 ### Changed
+- Opens straight into the chat: the 18+ / consent screen is gone; the AI and Gemini API notice now sits on the empty-chat welcome.
+- Large-screen layout: sidebar opens by default on desktop, header no longer hidden under the top bar, chat input aligned with the content column, starter prompts on the empty chat.
+- Gemini 5xx/429 errors are retried with backoff and shown as plain-language messages.
 - New tagline on the welcome screen: «رفيق عن رفيق بيفرق».
+
+### Security
+- The deployer's API key is no longer prefilled into the sidebar password field, where any visitor could reveal it.
 
 ## [0.1.0] - 2026-10-24
 

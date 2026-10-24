@@ -24,7 +24,7 @@ Most chatbots answer religious questions from model memory, which leads to fabri
 - 🛡️ **Safety first:** crisis messages skip the LLM and get a fixed human-help response with no verses.
 - 📖 **No fabricated scripture:** the model can only cite IDs from an approved catalog; the backend renders the exact Arabic text.
 - 🚫 **No autonomous fatwa:** individual rulings are referred to a qualified scholar.
-- 🔒 **Consent by design:** 18+, third-party API disclosure, separate toggles for faith guidance, memory and check-ins, and `/mydata` `/pause` `/forget` commands.
+- 🔒 **Privacy by design:** third-party API disclosure on the welcome screen, separate toggles for faith guidance, memory and check-ins, and `/mydata` `/pause` `/forget` commands.
 
 ## Quick start
 
@@ -38,6 +38,15 @@ streamlit run streamlit_app.py
 ```
 
 Run tests: `pytest` · Lint: `ruff check .`
+
+### Gemini API key
+
+1. Open <https://aistudio.google.com/apikey>, sign in with a Google account and click **Create API key**.
+2. **Local:** put it in `.env` as `GEMINI_API_KEY=...` (never commit `.env`).
+3. **Streamlit Community Cloud:** app **⋮ → Settings → Secrets**, add `GEMINI_API_KEY = "..."` and save. The key stays on the server and is never shown in the UI.
+4. Visitors can also paste their own key in the sidebar; it is used only for their session.
+
+A `500 INTERNAL` or `503` error comes from Google's side, not your key: the app retries automatically, and if it persists wait a minute or pick another model such as `gemini-2.5-flash-lite`.
 
 ## Project structure
 

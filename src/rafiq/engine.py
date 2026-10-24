@@ -6,6 +6,7 @@ inbound -> safety input gate -> LLM proposal (JSON) -> source-ID validation
 import json
 import os
 import re
+import time
 from dataclasses import dataclass, field
 
 from . import safety
@@ -119,8 +120,20 @@ class RafiqEngine:
                 response_mime_type="application/json",
                 temperature=0.6,
             )
-        resp = self._client.models.generate_content(model=self.model, contents=contents, config=config)
+        resp = self._generate(contents, config)
         return _parse_json(resp.text)
+
+    def _generate(self, contents, config, attempts: int = 3):
+        """Retry Gemini's transient failures (5xx, 429) with a short backoff."""
+        from google.genai import errors
+
+        for attempt in range(attempts):
+            try:
+                return self._client.models.generate_content(model=self.model, contents=contents, config=config)
+            except errors.APIError as e:
+                if e.code not in (429, 500, 502, 503, 504) or attempt == attempts - 1:
+                    raise
+                time.sleep(2 ** attempt)
 
     def respond(self, history: list[dict], settings: dict, memories: list[str]) -> Turn:
         user_text = history[-1]["content"]

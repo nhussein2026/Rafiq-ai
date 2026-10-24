@@ -128,11 +128,12 @@ html, body, .stApp, .stMarkdown, input, textarea, button {{
 .stApp {{ background: var(--r-bg); color: var(--r-text); }}
 [data-testid="stSidebar"] {{ background: var(--r-surface); border-inline-end: 1px solid var(--r-divider); }}
 #MainMenu, [data-testid="stDecoration"], footer {{ display: none !important; }}
-[data-testid="stHeader"] {{ background: var(--r-bg); }}
+/* Streamlit's top bar overlays the page; keep it short and pad the content below it */
+[data-testid="stHeader"] {{ background: var(--r-bg); height: 48px; min-height: 48px; }}
 
 /* ---------- Phone first (base) ---------- */
 .block-container {{
-  max-width: 720px; padding: 12px 16px calc(96px + env(safe-area-inset-bottom)) !important;
+  max-width: 720px; padding: 52px 16px calc(96px + env(safe-area-inset-bottom)) !important;
 }}
 html, body {{ overflow-x: hidden; }}
 
@@ -173,7 +174,10 @@ input, textarea {{ font-size: 16px !important; }}
 [data-testid="stBottomBlockContainer"] {{
   padding: 8px 16px calc(12px + env(safe-area-inset-bottom)) !important;
 }}
-[data-testid="stChatInput"] {{ border-radius: 16px; border: 1px solid var(--r-outline); background: var(--r-surface); }}
+[data-testid="stChatInput"] {{ border-radius: 16px; border: 1px solid var(--r-outline); background: var(--r-surface);
+  overflow: hidden; }}
+[data-testid="stChatInput"] > div {{ border: 0 !important; border-radius: 16px; background: transparent; }}
+[data-testid="stChatInput"]:focus-within {{ border-color: var(--r-primary); box-shadow: 0 0 0 1px var(--r-primary); }}
 [data-testid="stChatInput"] textarea {{ unicode-bidi: plaintext; text-align: start; }}
 
 /* Contained areas: 16px radius */
@@ -181,9 +185,9 @@ input, textarea {{ font-size: 16px !important; }}
   background: var(--r-surface); }}
 [data-testid="stAlert"] {{ border-radius: 16px; }}
 
-/* Header: compact app bar; left padding clears the sidebar toggle on phones */
+/* Header: compact app bar */
 .rafiq-header {{ display: flex; align-items: center; gap: 10px;
-  padding: 8px 0 8px 36px; margin-bottom: 4px; border-bottom: 1px solid var(--r-divider); }}
+  padding: 8px 0; margin-bottom: 4px; border-bottom: 1px solid var(--r-divider); }}
 .rafiq-header .rafiq-wordmark {{ font-size: 20px; }}
 .rafiq-header .rafiq-wordmark small {{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 52vw; }}
@@ -194,16 +198,8 @@ input, textarea {{ font-size: 16px !important; }}
 .rafiq-mascot {{ display: block; flex-shrink: 0; }}
 .rafiq-icon {{ border-radius: 10px; }}
 
-/* Welcome / consent */
-.rafiq-hero {{ text-align: center; padding: 16px 0 0; }}
-.rafiq-hero .rafiq-mascot {{ margin: 0 auto; width: 150px; height: auto; animation: rafiq-settle 450ms ease-out; }}
-.rafiq-hero .rafiq-wordmark {{ font-size: 32px; margin-top: 8px; }}
-.rafiq-hero .rafiq-wordmark small {{ font-size: 14px; }}
-.rafiq-hero p {{ color: var(--r-text-2); margin: 8px auto 0; }}
 @keyframes rafiq-settle {{ from {{ transform: translateY(6px) rotate(-3deg); opacity: 0; }}
   to {{ transform: none; opacity: 1; }} }}
-.rafiq-panel {{ background: var(--r-surface); border: 1px solid var(--r-divider); border-radius: 16px;
-  padding: 16px; margin: 16px 0 8px; color: var(--r-text); font-size: 15px; line-height: 1.6; }}
 
 /* Religious content card: plain, clear Arabic, visible reference, no mascot (section 6) */
 .rafiq-verse {{ background: var(--r-surface); border: 1px solid var(--r-divider); border-radius: 16px;
@@ -220,21 +216,35 @@ input, textarea {{ font-size: 16px !important; }}
 .rafiq-chip.crisis {{ border-color: var(--r-error); color: var(--r-error); }}
 .rafiq-chip.corrected {{ border-color: var(--r-warning); color: var(--r-warning); }}
 
+/* Empty chat: greeting plus starter prompts */
+.rafiq-empty {{ text-align: center; padding: 24px 0 8px; }}
+.rafiq-empty .rafiq-mascot {{ margin: 0 auto 8px; height: auto; animation: rafiq-settle 450ms ease-out; }}
+.rafiq-empty p {{ color: var(--r-text-2); margin: 4px 0; }}
+.rafiq-empty .greet {{ font-size: 20px; font-weight: 500; color: var(--r-text); }}
+.rafiq-empty .note {{ font-size: 13px; line-height: 1.6; max-width: 520px; margin: 12px auto 16px; }}
+
 .rafiq-side-brand {{ display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }}
 
 /* ---------- Tablet / desktop enhancements ---------- */
 @media (min-width: 640px) {{
-  .block-container {{ padding: 24px 24px 112px !important; }}
-  .rafiq-header {{ padding-left: 0; }}
+  .block-container {{ padding: 64px 24px 112px !important; }}
+  [data-testid="stBottomBlockContainer"] {{ max-width: 720px; padding: 8px 24px 16px !important; }}
   .rafiq-header .rafiq-wordmark {{ font-size: 24px; }}
   .rafiq-wordmark small {{ font-size: 14px; }}
   .rafiq-header .rafiq-wordmark small {{ max-width: none; }}
-  .rafiq-hero {{ padding-top: 40px; }}
-  .rafiq-hero .rafiq-mascot {{ width: 190px; }}
-  .rafiq-panel {{ font-size: 16px; }}
   .rafiq-verse .ar {{ font-size: 26px; }}
   .stButton > button {{ width: auto; min-width: 120px; }}
   [data-testid="stSidebar"] .stButton > button {{ width: 100%; min-width: 0; }}
+  .rafiq-empty {{ padding-top: 48px; }}
+  .rafiq-empty .rafiq-mascot {{ width: 150px; }}
+  /* Starter prompts sit side by side, equal width */
+  .block-container:has(.rafiq-empty) [data-testid="stColumn"] .stButton,
+  .block-container:has(.rafiq-empty) [data-testid="stColumn"] [data-testid="stElementContainer"] {{
+    width: 100% !important; }}
+  .block-container:has(.rafiq-empty) [data-testid="stColumn"] .stButton > button {{ width: 100%; min-width: 0; }}
+  .block-container:has(.rafiq-empty) [data-testid="stColumn"] .stButton > button p {{
+    white-space: normal; overflow: visible; text-overflow: clip; }}
+  .rafiq-empty .greet {{ font-size: 24px; }}
 }}
 
 @media (prefers-reduced-motion: reduce) {{

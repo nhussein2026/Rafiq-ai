@@ -10,11 +10,10 @@ from rafiq.brand import asset_img, css, mascot_svg, user_avatar_svg
 from rafiq.config import ASSETS_DIR, DEFAULT_MODEL
 
 st.set_page_config(page_title="Rafiq · رفيق", page_icon=str(ASSETS_DIR / "icon-128.png"), layout="centered",
-                   initial_sidebar_state="collapsed")
+                   initial_sidebar_state="auto")  # open on desktop, collapsed on phones
 st.markdown(css(), unsafe_allow_html=True)
 
 ss = st.session_state
-ss.setdefault("consented", False)
 ss.setdefault("messages", [])        # [{role, content, turn?}]
 ss.setdefault("memories", [])        # approved facts (session-only)
 ss.setdefault("pending_memory", [])  # model proposals awaiting user approval
@@ -29,10 +28,40 @@ ABOUT = (
 )
 
 
+def server_api_key() -> str:
+    """The deployer's key: Streamlit secrets (Cloud) first, then the environment (local .env)."""
+    try:
+        return st.secrets.get("GEMINI_API_KEY", "") or os.environ.get("GEMINI_API_KEY", "")
+    except Exception:  # no secrets.toml
+        return os.environ.get("GEMINI_API_KEY", "")
+
+
+def model_error_message(e: Exception) -> str:
+    code = getattr(e, "code", None)
+    if code in (500, 502, 503, 504):
+        return ("Gemini is having a temporary problem on Google's side. Wait a moment and send "
+                "your message again, or try another model in the sidebar (e.g. gemini-2.5-flash-lite).")
+    if code == 429:
+        return "The Gemini API key has hit its rate or free-tier limit. Wait a minute and try again."
+    if code in (400, 401, 403) and "key" in str(e).lower():
+        return ("The Gemini API key was rejected. Create a new one at https://aistudio.google.com/apikey "
+                "and paste it in the sidebar.")
+    if code == 404:
+        return "That model name was not found. Try gemini-2.5-flash."
+    return f"Model call failed: {e}"
+
+
 def md_bold(text: str) -> str:
     """Tiny **bold** -> <b> for text placed inside raw HTML blocks."""
     parts = text.split("**")
     return "".join(f"<b>{p}</b>" if i % 2 else p for i, p in enumerate(parts))
+
+
+STARTERS = [
+    "I'm stressed about my exams",
+    "أشعر بالوحدة هذه الأيام",
+    "Help me build a small daily habit",
+]
 
 
 def avatar_state(turn: dict | None) -> str:
@@ -48,23 +77,6 @@ def avatar_state(turn: dict | None) -> str:
     return "warm"
 
 
-# ---------- Consent screen (skills/09_privacy.md) ----------
-if not ss.consented:
-    st.markdown(
-        f"""<div class="rafiq-hero">{asset_img("mascot.png", 190)}
-        <div class="rafiq-wordmark">رفيق <small>Rafiq · your AI companion</small></div>
-        <p>رفيق عن رفيق بيفرق</p></div>""",
-        unsafe_allow_html=True,
-    )
-    st.markdown(f'<div class="rafiq-panel">{md_bold(ABOUT)}</div>', unsafe_allow_html=True)
-    adult = st.checkbox("I am 18 or older")
-    api = st.checkbox("I understand my messages are sent to Google's Gemini API")
-    if st.button("Start", disabled=not (adult and api), type="primary"):
-        ss.consented = True
-        st.rerun()
-    st.stop()
-
-
 # ---------- Sidebar: settings, memory, follow-ups ----------
 with st.sidebar:
     st.markdown(
@@ -73,8 +85,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.subheader("Settings")
-    api_key = st.text_input("Gemini API key", type="password",
-                            value=os.environ.get("GEMINI_API_KEY", ""))
+    # Never prefill the deployer's key: a password field can be revealed by any visitor.
+    has_server_key = bool(server_api_key())
+    api_key = st.text_input(
+        "Gemini API key", type="password",
+        placeholder="Using the app's key (optional)" if has_server_key else "Paste your key",
+        help="Free key: https://aistudio.google.com/apikey · used only for this session",
+    ) or server_api_key()
     model = st.text_input("Model", value=DEFAULT_MODEL,
                           help="e.g. gemini-2.5-flash, gemma-3-27b-it")
     settings = {
@@ -149,6 +166,19 @@ def render_turn_extras(turn: dict):
                 st.code(json.dumps(turn["raw"], ensure_ascii=False, indent=2), language="json")
 
 
+if not ss.messages:
+    st.markdown(
+        f"""<div class="rafiq-empty">{asset_img("mascot.png", 120)}
+        <p class="greet">أهلاً، أنا رفيق · Hi, I'm Rafiq</p>
+        <p>رفيق عن رفيق بيفرق</p>
+        <p class="note">{md_bold(ABOUT)}</p></div>""",
+        unsafe_allow_html=True,
+    )
+    for col, text in zip(st.columns(len(STARTERS)), STARTERS, strict=True):
+        if col.button(text, key=f"starter_{text}"):
+            ss.starter = text
+            st.rerun()
+
 for msg in ss.messages:
     turn = msg.get("turn")
     avatar = mascot_svg(avatar_state(turn), size=40) if msg["role"] == "assistant" else user_avatar_svg()
@@ -187,13 +217,13 @@ def handle_command(cmd: str) -> bool:
     return True
 
 
-if prompt := st.chat_input("اكتب رسالتك · Message Rafiq"):
+if prompt := st.chat_input("اكتب رسالتك · Message Rafiq") or ss.pop("starter", None):
     if prompt.strip().lower() in {"/about", "/mydata", "/pause", "/resume", "/forget"}:
         handle_command(prompt.strip().lower())
         st.rerun()
 
     if not api_key:
-        st.error("Add a Gemini API key in the sidebar (or GEMINI_API_KEY env var).")
+        st.error("Add a Gemini API key in the sidebar (free at https://aistudio.google.com/apikey).")
         st.stop()
 
     ss.messages.append({"role": "user", "content": prompt})
@@ -204,7 +234,7 @@ if prompt := st.chat_input("اكتب رسالتك · Message Rafiq"):
             turn = RafiqEngine(api_key=api_key, model=model).respond(history, settings, ss.memories)
         except Exception as e:  # show API/parse errors instead of crashing the demo
             ss.messages.pop()
-            st.error(f"Model call failed: {e}")
+            st.error(model_error_message(e))
             st.stop()
 
     t = turn.__dict__
